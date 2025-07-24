@@ -6,11 +6,17 @@ data GameState = WinX | WinO | Draw | Ongoing | Impossible deriving (Eq, Show)
 
 gameState :: [String] -> GameState
 gameState board
-  | cs 'O' > cs 'X' || cs 'X' > (cs 'O' + 1) || (win 'X' && win 'O') = Impossible
+  | invalidState = Impossible
   | win 'X' = WinX
   | win 'O' = WinO
-  | cs 'O' + cs 'X' == 9 = Draw
+  | allFilled = Draw
   | otherwise = Ongoing
   where
-    cs c = sum $ map (length . filter (== c)) board
-    win c = [c, c, c] `elem` board || [c, c, c] `elem` transpose board || [c, c, c] == [head (head board), board !! 1 !! 1, last (last board)] || [c, c, c] == [last (head board), board !! 1 !! 1, head (last board)]
+    counts c = sum $ map (length . filter (== c)) board
+    win c = [c, c, c] `elem` (board ++ transpose board ++ diagonals)
+    invalidState = counts 'O' > counts 'X' || counts 'X' > counts 'O' + 1 || (win 'X' && win 'O')
+    allFilled = counts 'O' + counts 'X' == 9
+    diagonals =
+      [ [head (head board), board !! 1 !! 1, last (last board)],
+        [last (head board), board !! 1 !! 1, head (last board)]
+      ]
