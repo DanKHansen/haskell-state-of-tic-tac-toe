@@ -12,7 +12,7 @@ gameState b
   | turns 'O' + turns 'X' == 9 = Draw
   | otherwise = Ongoing
   where
-    turns c = sum $ map (length . filter (== c)) b
-    win c = [c, c, c] `elem` (b ++ transpose b ++ diags)
-    diags = [[b !! i !! i | i <- [0 .. 2]], [b !! i !! (2 - i) | i <- [0 .. 2]]]
-    invalid = turns 'O' > turns 'X' || turns 'X' > turns 'O' + 1 || (win 'X' && win 'O')
+    turns c = length . filter (== c) $ concat b
+    win c = [c, c, c] `elem` (b <> transpose b <> diags)
+    diags = map (zipWith (!!) b) [[0, 1, 2], [2, 1, 0]]
+    invalid = turns 'X' - turns 'O' `notElem` [0, 1] || (win 'X' && win 'O')
